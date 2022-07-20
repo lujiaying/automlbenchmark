@@ -1,0 +1,6 @@
+---
+
+frameworks:
+  definition_file:  # this allows to add custom framework definitions (in {user}/frameworks.yaml) on top of the default ones.
+    - '{root}/resources/frameworks.yaml'
+    - '{user}/frameworks.yaml'

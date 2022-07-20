@@ -1,0 +1,5 @@
+---
+
+AutoGluon_v0.5.1:
+  extends: AutoGluon
+  version: "0.5.1"
