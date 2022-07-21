@@ -3,3 +3,11 @@
 AutoGluon_v0.5.1:
   extends: AutoGluon
   version: "0.5.1"
+
+AutoGluon_v0.5.1_high_il0.001:
+  extends: AutoGluon
+  version: "0.5.1"
+  params:
+    presets: high_quality
+    infer_limit: 0.001
+    infer_limit_batch_size: 10000

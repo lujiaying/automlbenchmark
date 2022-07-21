@@ -4,3 +4,32 @@ frameworks:
   definition_file:  # this allows to add custom framework definitions (in {user}/frameworks.yaml) on top of the default ones.
     - '{root}/resources/frameworks.yaml'
     - '{user}/frameworks.yaml'
+
+# ==== Start ~/.config/automlbenchmark/config.yaml ====
+project_repository: https://github.com/lujiaying/automlbenchmark
+
+versions:
+  python: 3.9
+
+aws:
+  region: 'us-west-1'
+
+  iam:
+    role_name: AutomlBenchmarkRole    
+    s3_policy_name: AutomlBenchmarkS3Policy
+    instance_profile_name: AutomlBenchmarkProfile
+    temporary: false  # set to true if you want IAM entities (credentials used by ec2 instances) being recreated for each benchmark run.
+    credentials_propagation_waiting_time_secs: 360  # increase this waiting time if you encounter credentials issues on ec2 instances when using temporary IAM.
+    max_role_session_duration_secs: 72000
+
+  s3:
+    bucket: automl-benchmark-jiaying    # ALWAYS SET this bucket name as it needs to be unique in entire S3 domain.
+                                        # (40 chars max as the app reserves some chars for temporary buckets)
+                                        # if you prefer using temporary s3 buckets (see below), you can comment out this property.
+    temporary: false  # set to true if you want a new s3-bucket being temporarily created/deleted for each benchmark run.
+    root_key: ec2/trial_20220720/
+    delete_resources: false
+
+  ec2:
+    terminate_instances: always  # see resources/config.yaml for explanations: you may want to switch this value to `success` if you want to investigate on benchmark failures.
+# ==== End ~/.config/automlbenchmark/config.yaml ====
