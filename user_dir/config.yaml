@@ -21,7 +21,7 @@ aws:
     instance_profile_name: AutomlBenchmarkProfile
     temporary: false  # set to true if you want IAM entities (credentials used by ec2 instances) being recreated for each benchmark run.
     credentials_propagation_waiting_time_secs: 360  # increase this waiting time if you encounter credentials issues on ec2 instances when using temporary IAM.
-    max_role_session_duration_secs: 72000
+    max_role_session_duration_secs: 43200
 
   s3:
     bucket: automl-benchmark-jiaying    # ALWAYS SET this bucket name as it needs to be unique in entire S3 domain.

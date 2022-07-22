@@ -1,5 +1,6 @@
 ---
-project_repository: https://github.com/openml/automlbenchmark#stable      # this is also the url used to clone the repository on ec2 instances
+project_repository: https://github.com/lujiaying/automlbenchmark#ag_cascade_benchmark
+#project_repository: https://github.com/openml/automlbenchmark#stable      # this is also the url used to clone the repository on ec2 instances
                                                                           # when running those without docker.
                                                                           # to clone a specific branch/tag, add a url fragment, e.g.:
                                                                           # https://github.com/openml/automlbenchmark#stable
@@ -109,7 +110,8 @@ singularity:                   # configuration namespace for docker: it inherits
   library: 'automlbenchmark/default'
 
 aws:                    # configuration namespace for AWS mode.
-  region: ''            # the AWS region to use. By default, the app will use the region set in ~/.aws/config when configuring AWS CLI.
+  #region: ''            # the AWS region to use. By default, the app will use the region set in ~/.aws/config when configuring AWS CLI.
+  region: 'us-west-1'
 
   iam:                                               # sub-namespace for AWS IAM service.
                                                      # Mainly used to allow secure communication between S3 storage and EC2 instances.
@@ -125,13 +127,15 @@ aws:                    # configuration namespace for AWS mode.
                                                      # This should be a number between 900 (15mn) to 43200 (12h).
 
   s3:                               # sub-namespace for AWS S3 service.
-    bucket: automl-benchmark        # must be unique im whole Amazon s3, max 40 chars, and include only numbers, lowercase characters and hyphens.
+    bucket: automl-benchmark-jiaying  
+    #bucket: automl-benchmark        # must be unique im whole Amazon s3, max 40 chars, and include only numbers, lowercase characters and hyphens.
                                     # if temporary is set to true, the generated bucket name will be `<bucket>-<now>`.
                                     # cf. complete restrictions: https://docs.aws.amazon.com/AmazonS3/latest/dev/BucketRestrictions.html
     temporary: false                # if true, the S3 bucket is created during setup and deleted at the end of the benchmark run.
                                     # Note that for safety reasons, the bucket is then created with a generated name: <s3.bucket>-<now>.
                                     # if false, the real <s3.bucket> name is used (after creation if it doesn't exists), but never deleted.
-    root_key: ec2/                  #
+    #root_key: ec2/                  #
+    root_key: ec2/trial_20220722/
     delete_resources: false         #
 
   ec2:
@@ -158,7 +162,8 @@ aws:                    # configuration namespace for AWS mode.
         '8': 2xlarge
         '16': 4xlarge
     instance_tags: {}                    # specify custom tags for the EC2 instances here
-    volume_type: standard                # one of gp2, io1, st1, sc1, or standard (default).
+    #volume_type: standard                # one of gp2, io1, st1, sc1, or standard (default).
+    volume_type: gp3
     volume_tags: {}                      # specify custom tags for the volume tags here (if empty, will apply the same tags as the corresponding instance)
     root_device_name: '/dev/sda1'        #
     availability_zone:                   # the availability zone where the instances will be created (if not set, aws will pick a default one).
