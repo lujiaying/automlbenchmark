@@ -1,18 +1,19 @@
 ---
-
 frameworks:
   definition_file:  # this allows to add custom framework definitions (in {user}/frameworks.yaml) on top of the default ones.
     - '{root}/resources/frameworks.yaml'
     - '{user}/frameworks.yaml'
 
-# ==== Start ~/.config/automlbenchmark/config.yaml ====
-project_repository: https://github.com/lujiaying/automlbenchmark
+project_repository: https://github.com/lujiaying/automlbenchmark#ag_cascade_benchmark
 
 versions:
   python: 3.9
 
 aws:
   region: 'us-west-1'
+  resource_files:
+    - '{user}/config.yaml'
+    - '{user}/frameworks.yaml'
 
   iam:
     role_name: AutomlBenchmarkRole    
@@ -33,4 +34,3 @@ aws:
   ec2:
     terminate_instances: always  # see resources/config.yaml for explanations: you may want to switch this value to `success` if you want to investigate on benchmark failures.
     volume_type: gp3             # one of gp2, io1, st1, sc1, or standard (default).
-# ==== End ~/.config/automlbenchmark/config.yaml ====
