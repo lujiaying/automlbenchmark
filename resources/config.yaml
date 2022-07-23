@@ -88,7 +88,8 @@ openml:                # configuration namespace for openML.
 
 versions:              # configuration namespace for versions enforcement (libraries versions are usually enforced in requirements.txt for the app and for each framework).
   pip:
-  python: 3.7          # the Python minor version that will be used by the application in containers and cloud instances, , also used as a based version for virtual environments created for each framework.
+  python: 3.9          # the Python minor version that will be used by the application in containers and cloud instances, , also used as a based version for virtual environments created for each framework.
+  #python: 3.7          # the Python minor version that will be used by the application in containers and cloud instances, , also used as a based version for virtual environments created for each framework.
 
 container: &container          # parent configuration namespace for container modes.
   force_branch: true           # set to true if image can only be built from a clean branch, with same tag as defined in `project_repository`.
@@ -123,7 +124,7 @@ aws:                    # configuration namespace for AWS mode.
                                                      # if temporary is set to true, the generated instance profile name will be `<instance_profile_name>-<now>`.
     temporary: false                                 # if true, the IAM entities will be automatically recreated during setup and deleted at the end of the benchmark run.
     credentials_propagation_waiting_time_secs: 360   # time to wait before being able to start ec2 instances when using new or temporary credentials.
-    max_role_session_duration_secs: 7200             # the max duration (in seconds) during which the ec2 instance will have access to s3.
+    max_role_session_duration_secs: 43200            # the max duration (in seconds) during which the ec2 instance will have access to s3.
                                                      # This should be a number between 900 (15mn) to 43200 (12h).
 
   s3:                               # sub-namespace for AWS S3 service.
@@ -135,7 +136,7 @@ aws:                    # configuration namespace for AWS mode.
                                     # Note that for safety reasons, the bucket is then created with a generated name: <s3.bucket>-<now>.
                                     # if false, the real <s3.bucket> name is used (after creation if it doesn't exists), but never deleted.
     #root_key: ec2/                  #
-    root_key: ec2/trial_20220722/
+    root_key: ec2/ag_high_inferLimit1ms-openml_271-m5_gp3_1h8c/
     delete_resources: false         #
 
   ec2:
