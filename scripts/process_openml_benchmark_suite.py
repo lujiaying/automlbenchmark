@@ -14,6 +14,19 @@ if __name__ == '__main__':
 
     # split task collections into multiple benchmark.yaml
     output_file_dir = './resources/benchmarks'
+    # binary
+    output_file_name = f'openml_bench_{benchmark_id}-binary.yaml'
+    output_file_path = f'{output_file_dir}/{output_file_name}'
+    with open(output_file_path, 'w') as fwrite:
+        binary_tasks_dict = binary_tasks_df[['name', 'tid']].rename(columns={'tid':'openml_task_id'}).to_dict('records')
+        yaml.dump(binary_tasks_dict, fwrite)
+    # multiclass
+    output_file_name = f'openml_bench_{benchmark_id}-multiclass.yaml'
+    output_file_path = f'{output_file_dir}/{output_file_name}'
+    with open(output_file_path, 'w') as fwrite:
+        multiclass_tasks_dict = multiclass_tasks_df[['name', 'tid']].rename(columns={'tid':'openml_task_id'}).to_dict('records')
+        yaml.dump(multiclass_tasks_dict, fwrite)
+    """
     for idx, chunk_df in enumerate(np.array_split(binary_tasks_df, 4)):
         chunk_dict = chunk_df[['name', 'tid']].rename(columns={'tid':'openml_task_id'}).to_dict('records')
         output_file_name = f'openml_bench_{benchmark_id}-binary-chunk_{idx}.yaml'
@@ -26,3 +39,4 @@ if __name__ == '__main__':
         output_file_path = f'{output_file_dir}/{output_file_name}'
         with open(output_file_path, 'w') as fwrite:
             yaml.dump(chunk_dict, fwrite)
+    """

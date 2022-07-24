@@ -49,8 +49,6 @@ AutoGluon_v0.5.1_high_il0.001:
     presets: high_quality
     infer_limit: 0.001
     infer_limit_batch_size: 10000
-    # debug: delete
-    num_bag_sets: 3
 
 AutoGluon_v0.5.1_medium_il0.001:
   extends: AutoGluon

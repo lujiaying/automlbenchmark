@@ -178,7 +178,7 @@ def run(dataset, config):
     if 'infer_limit_batch_size' in training_params:
         from autogluon.tabular import TabularDataset
         infer_limit_batch_size = training_params['infer_limit_batch_size']
-        repeats = 1    # TODO: change to 5
+        repeats = 3    # can be more
         test_data_set = TabularDataset(test)
         log.info(f'Execute infer_util.get_model_true_infer_speed_per_row_batch() for infer_limit_batch_size={infer_limit_batch_size}')
         time_per_row_df, _ = get_model_true_infer_speed_per_row_batch(data=test_data_set, predictor=predictor,
