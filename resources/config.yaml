@@ -65,8 +65,10 @@ benchmarks:                     # configuration namespace for the benchmarks def
 job_scheduler:           # configuration namespace
   exit_on_job_failure:   # if true, the entire run will be aborted on the first job failure (mainly used for testing) : set by caller (runbenchmark.py)
   parallel_jobs: 1       # the number of jobs being run in parallel in a benchmark session, set by caller (runbenchmark.py)
-  max_parallel_jobs: 10  # safety limit: increase this if you want to be able to run many jobs in parallel, especially in aws mode. Defaults to 10 to allow running the usual 10 folds in parallel with no problem.
-  delay_between_jobs: 5  # delay in seconds between each parallel job start
+  #max_parallel_jobs: 10  # safety limit: increase this if you want to be able to run many jobs in parallel, especially in aws mode. Defaults to 10 to allow running the usual 10 folds in parallel with no problem.
+  max_parallel_jobs: 1000
+  #delay_between_jobs: 5  # delay in seconds between each parallel job start
+  delay_between_jobs: 3
 
 monitoring:               # configuration namespace describing the basic monitoring features: currently, the app only logs each statistic at a given interval.
   interval_seconds: 120   # set to <= 0 to disable monitoring
@@ -88,8 +90,7 @@ openml:                # configuration namespace for openML.
 
 versions:              # configuration namespace for versions enforcement (libraries versions are usually enforced in requirements.txt for the app and for each framework).
   pip:
-  python: 3.9          # the Python minor version that will be used by the application in containers and cloud instances, , also used as a based version for virtual environments created for each framework.
-  #python: 3.7          # the Python minor version that will be used by the application in containers and cloud instances, , also used as a based version for virtual environments created for each framework.
+  python: 3.7          # the Python minor version that will be used by the application in containers and cloud instances, , also used as a based version for virtual environments created for each framework.
 
 container: &container          # parent configuration namespace for container modes.
   force_branch: true           # set to true if image can only be built from a clean branch, with same tag as defined in `project_repository`.
