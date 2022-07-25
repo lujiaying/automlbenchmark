@@ -23,3 +23,4 @@
 # python runbenchmark.py autogluon_v0.5.1_high_il0.001 example 1h8c -m aws -f 0
 # 30 dataset * 10 fold * 1h = 300 hour, using 300 instance can finish in 1 hour!
 # python runbenchmark.py autogluon_v0.5.1_high_il0.001 openml_bench_271-multiclass 1h8c -m aws -p 300
+python runbenchmark.py autogluon_v0.5.1_high_il0.001 openml_bench_271-multiclass-failed 1h8c -m aws -p 50
