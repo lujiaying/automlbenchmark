@@ -1,0 +1,10 @@
+- name: jannis
+  openml_task_id: 211979
+- name: Diabetes130US
+  openml_task_id: 211986
+- name: connect-4
+  openml_task_id: 359977
+- name: helena
+  openml_task_id: 359984
+- name: volkert
+  openml_task_id: 359985
