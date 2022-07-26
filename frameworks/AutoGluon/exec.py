@@ -13,7 +13,7 @@ import matplotlib
 import pandas as pd
 matplotlib.use('agg')  # no need for tk
 
-from autogluon.tabular import TabularPredictor
+from autogluon.tabular import TabularPredictor, TabularDataset
 from autogluon.core.utils.savers import save_pd, save_pkl
 import autogluon.core.metrics as metrics
 from autogluon.tabular.version import __version__
@@ -145,7 +145,7 @@ def run(dataset, config):
     is_classification = config.type == 'classification'
     training_params = {k: v for k, v in config.framework_params.items() if not k.startswith('_')}
 
-    train, test = dataset.train.path, dataset.test.path
+    train_path, test_path = dataset.train.path, dataset.test.path
     label = dataset.target.name
     problem_type = dataset.problem_type
 
@@ -158,34 +158,35 @@ def run(dataset, config):
             path=models_dir,
             problem_type=problem_type,
         ).fit(
-            train_data=train,
+            train_data=train_path,
             time_limit=config.max_runtime_seconds,
             **training_params
         )
 
-    del train
+    test_data = TabularDataset(test_path)
+    # Persist model in memory that is going to be predicting to get correct inference latency
+    # TODO: check with Nick, whether we need to enlarge this?
+    predictor.persist_models('best')
 
     if is_classification:
         with Timer() as predict:
-            probabilities = predictor.predict_proba(test, as_multiclass=True)
+            probabilities = predictor.predict_proba(test_data, as_multiclass=True)
         predictions = probabilities.idxmax(axis=1).to_numpy()
     else:
         with Timer() as predict:
-            predictions = predictor.predict(test, as_pandas=False)
+            predictions = predictor.predict(test_data, as_pandas=False)
         probabilities = None
     # Jiaying: add genueine infer duration/speed based on infer_limit_batch_size
     predict_genuine_duration = None
     if 'infer_limit_batch_size' in training_params:
-        from autogluon.tabular import TabularDataset
         infer_limit_batch_size = training_params['infer_limit_batch_size']
         repeats = 3    # can be more
-        test_data_set = TabularDataset(test)
         log.info(f'Execute infer_util.get_model_true_infer_speed_per_row_batch() for infer_limit_batch_size={infer_limit_batch_size}')
-        time_per_row_df, _ = get_model_true_infer_speed_per_row_batch(data=test_data_set, predictor=predictor,
+        time_per_row_df, _ = get_model_true_infer_speed_per_row_batch(data=test_data, predictor=predictor,
                                                                       batch_size=infer_limit_batch_size, repeats=repeats, silent=True)
         # log.info(time_per_row_df)
         best_model_time_per_row = time_per_row_df.loc[predictor.get_model_best()]
-        predict_genuine_duration = best_model_time_per_row['pred_time_test_with_transform'] * len(test_data_set)
+        predict_genuine_duration = best_model_time_per_row['pred_time_test_with_transform'] * len(test_data)
 
     prob_labels = probabilities.columns.values.astype(str).tolist() if probabilities is not None else None
 
@@ -194,7 +195,7 @@ def run(dataset, config):
     leaderboard_kwargs = dict(silent=True, extra_info=_leaderboard_extra_info)
     # Disabled leaderboard test data input by default to avoid long running computation, remove 7200s timeout limitation to re-enable
     if _leaderboard_test:
-        leaderboard_kwargs['data'] = test
+        leaderboard_kwargs['data'] = test_data
 
     leaderboard = predictor.leaderboard(**leaderboard_kwargs)
     with pd.option_context('display.max_rows', None, 'display.max_columns', None, 'display.width', 1000):
