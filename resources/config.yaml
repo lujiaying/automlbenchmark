@@ -139,7 +139,8 @@ aws:                    # configuration namespace for AWS mode.
                                     # if false, the real <s3.bucket> name is used (after creation if it doesn't exists), but never deleted.
     #root_key: ec2/                  #
     #root_key: ec2/ag_high_inferLimit1ms-openml_271-m5_gp3_1h8c_gp3/
-    root_key: ec2/ag_high_saveAll-openml_271-m5_gp3_1h8c_gp3/
+    # root_key: ec2/ag_high_saveAll-openml_271-m5_gp3_1h8c_gp3/
+    root_key: ec2/ag_high_cascade_saveAll-openml_271-m5_gp3_1h8c_gp3/
     delete_resources: false         #
 
   ec2:

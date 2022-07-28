@@ -25,4 +25,12 @@
 
 # Jul 27, save_artifacts
 # POC
-python runbenchmark.py autogluon_v0.5.1_medium_saveall example 1h8c_gp3
+# python runbenchmark.py AutoGluon_v0.5.1_high_saveall example 1h8c_gp3 -m aws -p 1
+# ~200MB for high_quality save all artifacts on 1 binary classifcation task
+# 41 binary ~= 8GB
+# python runbenchmark.py AutoGluon_v0.5.1_high_saveall openml_bench_271-binary 1h8c_gp3 -m aws -p 400
+# python runbenchmark.py AutoGluon_v0.5.1_high_saveall openml_bench_271-multiclass 1h8c_gp3 -m aws -p 250
+
+# Jul 28
+# POC
+python runbenchmark.py AutoGluon_jylu_cascade_high_saveall example 1h8c_gp3 -m aws -p 1
