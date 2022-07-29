@@ -5,7 +5,7 @@ project_repository: https://github.com/lujiaying/automlbenchmark#ag_cascade_benc
                                                                           # to clone a specific branch/tag, add a url fragment, e.g.:
                                                                           # https://github.com/openml/automlbenchmark#stable
 
-user_dir:    ~/.config/automlbenchmark  # where to override settings with a custom config.yaml file and, for example, add custom frameworks, benchmark definitions or framework modules: set by caller (runbenchmark.py).
+user_dir:    # where to override settings with a custom config.yaml file and, for example, add custom frameworks, benchmark definitions or framework modules: set by caller (runbenchmark.py).
 input_dir:   # where the datasets are loaded by default: : set by caller (runbenchmark.py).
 output_dir:  # where logs and results are saved by default: set by caller (runbenchmark.py).
 root_dir:    # app root dir: set by caller (runbenchmark.py)
@@ -32,7 +32,6 @@ setup:                   # configuration namespace for the framework setup phase
 frameworks:              # configuration namespace for the frameworks definitions.
   definition_file:       # list of yaml files describing the frameworks base definitions.
     - '{root}/resources/frameworks.yaml'
-    - '{user}/frameworks.yaml'
   root_module: frameworks     # the default python module under which the frameworks modules are defined.
   allow_duplicates: false     # if true, the last definition is used.
   tags: ['stable', 'latest', '2020Q2', '2021Q3']  # the list of supported tags when looking up frameworks:
@@ -217,9 +216,7 @@ aws:                    # configuration namespace for AWS mode.
   overhead_time_seconds: 1800   # amount of additional time allowed for the job to complete on aws before the instance is stopped.
   query_interval_seconds: 30    # check instance state every N seconds
 
-  resource_files:
-    - '{user}/frameworks.yaml'
-  #resource_files: []            # additional resource files or directories that are made available to benchmark runs on ec2, from remote input or user directory.
+  resource_files: []            # additional resource files or directories that are made available to benchmark runs on ec2, from remote input or user directory.
                                 # Those files are actually uploaded to s3 bucket (precisely to s3://{s3.bucket}/{s3.root_key}/user),
                                 #  this folder being itself synchronized on each ec2 instance and used as user directory.
                                 # The possibility of adding resource_files is especially necessary to run custom frameworks.

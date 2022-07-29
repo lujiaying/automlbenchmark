@@ -38,10 +38,19 @@ AutoGluon_bestquality:
 
 #########################
 ### AutoGluon Custom Framework ###
-### TODO: test whether I should put it into ~/.config/automlbenchmark/frameworks.yaml ###
 AutoGluon_v0.5.1:
   extends: AutoGluon
   version: "0.5.1"
+
+AutoGluon_jylu_cascade_high_saveall:
+  extends: AutoGluon
+  #setup_args: ['cascade_ensemble_do_no_harm_v2', 'https://github.com/lujiaying/autogluon']
+  version: "cascade_ensemble_do_no_harm_v2"
+  repo: "https://github.com/lujiaying/autogluon.git"
+  params:
+    presets: high_quality
+    num_bag_sets: 3
+    _save_artifacts: ['leaderboard', 'models', 'info']
 
 AutoGluon_v0.5.1_high_saveall:
   extends: AutoGluon
