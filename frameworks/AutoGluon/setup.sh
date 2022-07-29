@@ -38,7 +38,16 @@ else
     # PIP install -e vision/
     # PIP install -e autogluon/
     PIP install torch==1.12.0+cpu torchvision==0.13.0+cpu torchtext==0.13.0 --extra-index-url https://download.pytorch.org/whl/cpu
-    ./full_install.sh
+    set -euo pipefail
+    PIP install -e common/[tests]
+    PIP install -e core/[all,tests]
+    PIP install -e features/
+    PIP install -e tabular/[all,tests]
+    PIP install -e multimodal/[tests]
+    PIP install -e text/[tests]
+    PIP install -e vision/
+    PIP install -e timeseries/[all,tests]
+    PIP install -e autogluon/
 fi
 
 PY -c "from autogluon.tabular.version import __version__; print(__version__)" >> "${HERE}/.setup/installed"
