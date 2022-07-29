@@ -29,14 +29,16 @@ else
     rm -Rf ${TARGET_DIR}
     git clone --depth 1 --single-branch --branch ${VERSION} --recurse-submodules ${REPO} ${TARGET_DIR}
     cd ${TARGET_DIR}
-    PIP install -e core/
-    PIP install -e features/
-    PIP install -e tabular/[all]
-    PIP install -e mxnet/
-    PIP install -e extra/
-    PIP install -e text/
-    PIP install -e vision/
-    PIP install -e autogluon/
+    # PIP install -e core/
+    # PIP install -e features/
+    # PIP install -e tabular/[all]
+    # PIP install -e mxnet/
+    # PIP install -e extra/
+    # PIP install -e text/
+    # PIP install -e vision/
+    # PIP install -e autogluon/
+    PIP install torch==1.12.0+cpu torchvision==0.13.0+cpu torchtext==0.13.0 --extra-index-url https://download.pytorch.org/whl/cpu
+    ./full_install.sh
 fi
 
 PY -c "from autogluon.tabular.version import __version__; print(__version__)" >> "${HERE}/.setup/installed"
