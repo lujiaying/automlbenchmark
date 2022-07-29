@@ -43,7 +43,7 @@ AutoGluon_v0.5.1:
   version: "0.5.1"
 
 AutoGluon_jylu_cascade_high_saveall:
-  extends: AutoGluon
+  module: frameworks.AutoGluon 
   setup_args: ['cascade_ensemble_do_no_harm_v2', 'https://github.com/lujiaying/autogluon']
   params:
     presets: high_quality
@@ -62,21 +62,6 @@ AutoGluon_v0.5.1_high_il0.001:
   version: "0.5.1"
   params:
     presets: high_quality
-    infer_limit: 0.001
-    infer_limit_batch_size: 10000
-
-AutoGluon_v0.5.1_medium_saveall:
-  extends: AutoGluon
-  version: "0.5.1"
-  params:
-    presets: medium_quality
-    _save_artifacts: ['leaderboard', 'models', 'info']
-
-AutoGluon_v0.5.1_medium_il0.001:
-  extends: AutoGluon
-  version: "0.5.1"
-  params:
-    presets: medium_quality
     infer_limit: 0.001
     infer_limit_batch_size: 10000
 #########################
