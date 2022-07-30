@@ -42,21 +42,16 @@ AutoGluon_v0.5.1:
   extends: AutoGluon
   version: "0.5.1"
 
-AutoGluon_jylu_cascade_high_saveall:
+AutoGluon_v0.5.3_Jul30_high:
   extends: AutoGluon
-  #setup_args: ['cascade_ensemble_do_no_harm_v2', 'https://github.com/lujiaying/autogluon']
-  version: "cascade_ensemble_do_no_harm_v2"
+  # V0.5.3 Jul 30 2022
+  version: "cascade_benchmark-2022_07_30-v0.5.3"
   repo: "https://github.com/lujiaying/autogluon"
   params:
     presets: high_quality
+    # TODO: remove num_bag_sets
     num_bag_sets: 3
-    _save_artifacts: ['leaderboard', 'models', 'info']
-
-AutoGluon_v0.5.1_high_saveall:
-  extends: AutoGluon
-  version: "0.5.1"
-  params:
-    presets: high_quality
+    _leaderboard_test: true
     _save_artifacts: ['leaderboard', 'models', 'info']
 
 AutoGluon_v0.5.1_high_il0.001:
