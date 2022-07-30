@@ -33,4 +33,4 @@
 
 # Jul 28
 # POC
-python runbenchmark.py AutoGluon_jylu_cascade_high_saveall example 1h8c_gp3 -f 0 -m aws -p 1
+python runbenchmark.py AGv053_Jul30_high example 1h8c_gp3 -f 0 -m aws -p 1
