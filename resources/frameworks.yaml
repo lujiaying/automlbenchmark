@@ -50,7 +50,18 @@ AGv053_Jul30_high:
   params:
     presets: high_quality
     _leaderboard_test: true
-    _save_artifacts: ['leaderboard', 'models', 'info']
+    _save_artifacts: ['leaderboard', 'info']
+
+AGv053_Jul30_high_il0.02:
+  extends: AutoGluon
+  version: "cascade_benchmark-2022_07_30-v0.5.3"
+  repo: "https://github.com/lujiaying/autogluon"
+  params:
+    presets: high_quality
+    infer_limit: 0.02
+    infer_limit_batch_size: 10000
+    _leaderboard_test: true
+    _save_artifacts: ['leaderboard', 'info']
 
 AGv053_Jul30_high_il0.01:
   extends: AutoGluon
@@ -61,7 +72,7 @@ AGv053_Jul30_high_il0.01:
     infer_limit: 0.01
     infer_limit_batch_size: 10000
     _leaderboard_test: true
-    _save_artifacts: ['leaderboard', 'models', 'info']
+    _save_artifacts: ['leaderboard', 'info']
 
 AGv053_Jul30_high_il0.005:
   extends: AutoGluon
@@ -72,7 +83,7 @@ AGv053_Jul30_high_il0.005:
     infer_limit: 0.005
     infer_limit_batch_size: 10000
     _leaderboard_test: true
-    _save_artifacts: ['leaderboard', 'models', 'info']
+    _save_artifacts: ['leaderboard', 'info']
 
 AGv053_Jul30_high_il0.002:
   extends: AutoGluon
@@ -83,7 +94,7 @@ AGv053_Jul30_high_il0.002:
     infer_limit: 0.002
     infer_limit_batch_size: 10000
     _leaderboard_test: true
-    _save_artifacts: ['leaderboard', 'models', 'info']
+    _save_artifacts: ['leaderboard', 'info']
 
 AGv053_Jul30_high_il0.001:
   extends: AutoGluon
@@ -94,7 +105,7 @@ AGv053_Jul30_high_il0.001:
     infer_limit: 0.001
     infer_limit_batch_size: 10000
     _leaderboard_test: true
-    _save_artifacts: ['leaderboard', 'models', 'info']
+    _save_artifacts: ['leaderboard', 'info']
 
 AGv053_Jul30_high_il0.0005:
   extends: AutoGluon
@@ -105,18 +116,7 @@ AGv053_Jul30_high_il0.0005:
     infer_limit: 0.0005
     infer_limit_batch_size: 10000
     _leaderboard_test: true
-    _save_artifacts: ['leaderboard', 'models', 'info']
-
-AGv053_Jul30_high_il0.0002:
-  extends: AutoGluon
-  version: "cascade_benchmark-2022_07_30-v0.5.3"
-  repo: "https://github.com/lujiaying/autogluon"
-  params:
-    presets: high_quality
-    infer_limit: 0.0002
-    infer_limit_batch_size: 10000
-    _leaderboard_test: true
-    _save_artifacts: ['leaderboard', 'models', 'info']
+    _save_artifacts: ['leaderboard', 'info']
 #########################
 
 autosklearn:
