@@ -21,4 +21,5 @@
 # python runbenchmark.py AGv053_Jul30_high_il0.005 ag 1h8c_gp3 -m aws -p 1000
 
 # POC for cascade algorithm after training
-python runbenchmark.py AGv053_Aug01_high example 1h8c_gp3 -f 0
+# python runbenchmark.py AGv053_Aug01_high example 1h8c_gp3 -f 0 -m aws -p 1
+# python runbenchmark.py AGv053_Aug01_high openml_bench_271 1h8c_gp3 -m aws -p 1000
