@@ -48,6 +48,7 @@ AGv053_Aug01_high:
   repo: "https://github.com/lujiaying/autogluon"
   params:
     presets: high_quality
+    num_bag_folds: 4   # TODO: delete; temp add
     num_bag_sets: 2    # TODO: delete; temp add
     _leaderboard_test: true
     _save_artifacts: ['leaderboard', 'info', 'cascade_results']
