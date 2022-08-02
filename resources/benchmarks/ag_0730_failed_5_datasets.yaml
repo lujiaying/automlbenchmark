@@ -1,0 +1,17 @@
+---
+# airlines, higgs, albert, porto-seguro, sf-police-incidents
+# failed due to wrong implementation of infer_util
+# need to re-run for following frameworks:
+# [ ] AGv053_Jul30_high_il0.005
+# [ ] AGv053_Jul30_high_il0.002
+# [ ] AGv053_Jul30_high_il0.01
+- name: airlines
+  openml_task_id: 189354
+- name: Higgs
+  openml_task_id: 360114
+- name: albert
+  openml_task_id: 189356
+- name: porto-seguro
+  openml_task_id: 360113
+- name: sf-police-incidents
+  openml_task_id: 359994
