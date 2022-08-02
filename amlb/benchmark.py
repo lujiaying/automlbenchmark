@@ -395,7 +395,7 @@ class TaskConfig:
         if name == 'metrics':
             self.metric = value[0] if isinstance(value, list) else value
         elif name == 'max_runtime_seconds':
-            self.job_timeout_seconds = min(value * 2,
+            self.job_timeout_seconds = max(value * 2,
                                            value + rconfig().benchmarks.overhead_time_seconds)
         super().__setattr__(name, value)
 
