@@ -6,7 +6,9 @@ import shutil
 import warnings
 import sys
 import tempfile
+import time
 from typing import Tuple
+from dataclasses import asdict
 warnings.simplefilter("ignore")
 
 if sys.platform == 'darwin':
@@ -54,6 +56,78 @@ def get_predict_genuine_duration(predictor: TabularPredictor, training_params: d
         # log.info('get_model_true_infer_speed_per_row_batch() not exist, return predict_genuine_duration as None')
         print('get_model_true_infer_speed_per_row_batch() not exist, return predict_genuine_duration as None')
         return leaderboard, None
+
+
+def execute_cascade_algorithm(predictor: TabularPredictor, test_data: TabularDataset) -> pd.DataFrame:
+    from autogluon.tabular.predictor.cascade_do_no_harm import F2SP_Preset, GreedyP_Preset, CascadeConfig
+    from autogluon.tabular.predictor.cascade_do_no_harm import get_all_predecessor_model_names
+    from autogluon.core.utils.time import sample_df_for_time_func
+
+    def get_cascade_config_WE_details(predictor: TabularPredictor, cascad_config: CascadeConfig):
+        model_predecessors_dict = {}
+        for model in cascad_config.model:
+            model_predecessors = get_all_predecessor_model_names(predictor, model)
+            model_predecessors_dict[model] = list(model_predecessors)
+        return model_predecessors_dict
+
+    metrics_mapping = dict(
+        acc=metrics.accuracy,
+        balacc=metrics.balanced_accuracy,
+        auc=metrics.roc_auc,
+        f1=metrics.f1,
+        logloss=metrics.log_loss,
+        mae=metrics.mean_absolute_error,
+        mse=metrics.mean_squared_error,
+        r2=metrics.r2,
+        rmse=metrics.root_mean_squared_error,
+    )
+    metrics_mapping_r = {v.name: k for k, v in metrics_mapping.items()}
+    cascade_results = []
+    infer_limit_batch_size = 10000
+    test_data_sampled = sample_df_for_time_func(df=test_data, sample_size=infer_limit_batch_size, 
+                                                max_sample_size=infer_limit_batch_size)
+    # TODO: add for loop for multiple configs
+    #for infer_limit in [None, 2e-3, 1e-3, 5e-4, 2e-4, 1e-4]:
+    for infer_limit in [None, 1e-3, 2e-4]:
+        for cascade_algo_name in ['F2S+', 'Greedy+']:
+            preset = F2SP_Preset() if cascade_algo_name == 'F2S+' else GreedyP_Preset()
+            fit_cascade_params = {
+                'infer_limit': infer_limit,
+                'infer_limit_batch_size': infer_limit_batch_size,
+                'hyperparameter_cascade': {f'{cascade_algo_name}_{infer_limit}': asdict(preset)},
+            }
+            cascd_train_duration_ts = time.time()
+            cascade_configs_dict = predictor.fit_cascade(**fit_cascade_params)
+            cascd_train_duration_te = time.time()
+            for cascd_hyper_name, cascade_config in cascade_configs_dict.items():
+                if cascade_config is None:
+                    cascade_results.append(
+                        {
+                        'cascade_hyper_name': cascd_hyper_name,
+                        'training_duration': cascd_train_duration_te - cascd_train_duration_ts,
+                        }
+                    )
+                else:
+                    infer_time, pred_probas = predictor.do_infer_with_cascade_conf(cascade_config, test_data)
+                    test_metrics = predictor.evaluate_predictions(test_data[predictor.label], pred_probas, silent=True)
+                    test_metrics = {metrics_mapping_r[k]: v for k, v in test_metrics.items() if k in metrics_mapping_r}
+                    infer_time_genuine, _ = predictor.do_infer_with_cascade_conf(cascade_config, test_data_sampled)
+                    #print(f'{cascd_hyper_name}, {cascade_config}, {infer_time}, {test_metrics}')
+                    cascade_m_predecessors_dict = get_cascade_config_WE_details(predictor, cascade_config)
+                    cascade_results.append(
+                        {
+                        'cascade_hyper_name': cascd_hyper_name,
+                        'fit_cascade_params': fit_cascade_params,
+                        'cascade_config': {**asdict(cascade_config), **{'WE_predecessors_info': cascade_m_predecessors_dict}},
+                        'training_duration': cascd_train_duration_te - cascd_train_duration_ts,
+                        'predict_duration': infer_time,
+                        'predict_duration_genuine': infer_time_genuine,
+                        'sec_per_row': infer_time / len(test_data),
+                        'genuine_sec_per_row': infer_time_genuine / infer_limit_batch_size,
+                        **test_metrics,
+                        }
+                    )
+    return pd.DataFrame.from_records(cascade_results)
 
 
 def run(dataset, config):
@@ -131,9 +205,11 @@ def run(dataset, config):
     # Jiaying: add genueine infer duration/speed based on infer_limit_batch_size
     leaderboard_genuine, predict_genuine_duration = get_predict_genuine_duration(predictor, training_params, leaderboard, test_data)
     leaderboard = leaderboard_genuine
+    # Jiaying: add cascade algorithm post training
+    cascade_results = execute_cascade_algorithm(predictor, test_data)
     # End add
 
-    save_artifacts(predictor, leaderboard, config)
+    save_artifacts(predictor, leaderboard, config, cascade_results)
     shutil.rmtree(predictor.path, ignore_errors=True)
 
     return result(output_file=config.output_predictions_file,
@@ -145,11 +221,12 @@ def run(dataset, config):
                   models_ensemble_count=num_models_ensemble,
                   training_duration=training.duration,
                   predict_duration=predict.duration,
-                  predict_genuine_duration=predict_genuine_duration)
+                  predict_genuine_duration=predict_genuine_duration,
+                  )
 
 
-def save_artifacts(predictor, leaderboard, config):
-    artifacts = config.framework_params.get('_save_artifacts', ['leaderboard'])
+def save_artifacts(predictor, leaderboard, config, cascade_results: pd.DataFrame):
+    artifacts = config.framework_params.get('_save_artifacts', ['leaderboard', 'cascade_results'])
     try:
         if 'leaderboard' in artifacts:
             leaderboard_dir = output_subdir("leaderboard", config)
@@ -164,6 +241,10 @@ def save_artifacts(predictor, leaderboard, config):
             #shutil.rmtree(os.path.join(predictor.path, "utils"), ignore_errors=True)
             models_dir = output_subdir("models", config)
             zip_path(predictor.path, os.path.join(models_dir, "models.zip"))
+
+        if 'cascade_results' in artifacts:
+            cascade_dir = output_subdir('cascade', config)
+            save_pd.save(path=os.path.join(cascade_dir, "cascade_results.csv"), df=cascade_results)
     except Exception:
         log.warning("Error when saving artifacts.", exc_info=True)
 
