@@ -86,8 +86,8 @@ def execute_cascade_algorithm(predictor: TabularPredictor, test_data: TabularDat
     infer_limit_batch_size = 10000
     test_data_sampled = sample_df_for_time_func(df=test_data, sample_size=infer_limit_batch_size, 
                                                 max_sample_size=infer_limit_batch_size)
-    #for infer_limit in [None]:
-    for infer_limit in [None, 1e-4, 5e-5, 2e-5, 1e-5]:
+    #for infer_limit in [None, 1e-4, 5e-5, 2e-5, 1e-5]:
+    for infer_limit in [None, 1e-5]:
         #for cascade_algo_name in ['F2S+', 'Greedy+']:
         for cascade_algo_name in ['F2S+']:
             preset = F2SP_Preset() if cascade_algo_name == 'F2S+' else GreedyP_Preset()
@@ -100,6 +100,7 @@ def execute_cascade_algorithm(predictor: TabularPredictor, test_data: TabularDat
             cascade_configs_dict = predictor.fit_cascade(**fit_cascade_params)
             cascd_train_duration_te = time.time()
             for cascd_hyper_name, cascade_config in cascade_configs_dict.items():
+                print(f'{cascd_hyper_name}: get infer_speed and eval_metrics on test data by {cascade_config}')
                 if cascade_config is None:
                     cascade_results.append(
                         {
@@ -112,7 +113,7 @@ def execute_cascade_algorithm(predictor: TabularPredictor, test_data: TabularDat
                     test_metrics = predictor.evaluate_predictions(test_data[predictor.label], pred_probas, silent=True)
                     test_metrics = {metrics_mapping_r[k]: v for k, v in test_metrics.items() if k in metrics_mapping_r}
                     infer_time_genuine, _ = predictor.do_infer_with_cascade_conf(cascade_config, test_data_sampled)
-                    #print(f'{cascd_hyper_name}, {cascade_config}, {infer_time}, {test_metrics}')
+                    print(f'[DEBUG] infer_time={infer_time}, test_metrics={test_metrics}')
                     cascade_m_predecessors_dict = get_cascade_config_WE_details(predictor, cascade_config)
                     cascade_results.append(
                         {
