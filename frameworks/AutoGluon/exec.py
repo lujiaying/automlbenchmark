@@ -87,7 +87,7 @@ def execute_cascade_algorithm(predictor: TabularPredictor, test_data: TabularDat
     test_data_sampled = sample_df_for_time_func(df=test_data, sample_size=infer_limit_batch_size, 
                                                 max_sample_size=infer_limit_batch_size)
     #for infer_limit in [None, 1e-4, 5e-5, 2e-5, 1e-5]:
-    for infer_limit in [None, 1e-5]:
+    for infer_limit in [None, 1e-4, 5e-5, 2e-5, 1e-5]:
         #for cascade_algo_name in ['F2S+', 'Greedy+']:
         for cascade_algo_name in ['F2S+']:
             preset = F2SP_Preset() if cascade_algo_name == 'F2S+' else GreedyP_Preset()
