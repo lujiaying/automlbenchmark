@@ -38,27 +38,12 @@ AutoGluon_bestquality:
 
 #########################
 ### AutoGluon Custom Framework ###
-AutoGluon_v0.5.1:
+AGv053_Aug31_high:
   extends: AutoGluon
-  version: "0.5.1"
-
-AGv053_Aug01_high:
-  extends: AutoGluon
-  version: "cascade_benchmark-2022_08_01-v0.5.3"
+  version: "cascade_benchmark-2022_08_31-v0.5.3"
   repo: "https://github.com/lujiaying/autogluon"
   params:
     presets: high_quality
-    _leaderboard_test: true
-    _save_artifacts: ['leaderboard', 'info', 'cascade_results']
-
-AGv053_Aug01_high_il0.001:
-  extends: AutoGluon
-  version: "cascade_benchmark-2022_08_01-v0.5.3"
-  repo: "https://github.com/lujiaying/autogluon"
-  params:
-    presets: high_quality
-    infer_limit: 0.001
-    infer_limit_batch_size: 10000
     _leaderboard_test: true
     _save_artifacts: ['leaderboard', 'info', 'cascade_results']
 #########################

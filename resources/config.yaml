@@ -1,4 +1,4 @@
-project_repository: https://github.com/lujiaying/automlbenchmark#cascade_benchmark-2022_08_01-v0.5.3
+project_repository: https://github.com/lujiaying/automlbenchmark#cascade_benchmark-2022_08_31-v0.5.3
 #project_repository: https://github.com/openml/automlbenchmark#stable      # this is also the url used to clone the repository on ec2 instances
                                                                           # when running those without docker.
                                                                           # to clone a specific branch/tag, add a url fragment, e.g.:

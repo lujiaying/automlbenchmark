@@ -28,6 +28,8 @@ from frameworks.shared.utils import Timer, zip_path
 
 log = logging.getLogger(__name__)
 
+DEFAULT_BATCH_SIZE = 10000
+
 
 def get_predict_genuine_duration(predictor: TabularPredictor, training_params: dict, 
                                  leaderboard: pd.DataFrame, test_data: TabularDataset) -> Tuple[pd.DataFrame, pd.Series]:
@@ -36,7 +38,8 @@ def get_predict_genuine_duration(predictor: TabularPredictor, training_params: d
     """
     try:
         from autogluon.core.utils.infer_utils import get_model_true_infer_speed_per_row_batch
-        default_batch_size = 10000
+        global DEFAULT_BATCH_SIZE
+        default_batch_size = DEFAULT_BATCH_SIZE
         n_repeats = 3
         infer_limit_batch_size = training_params.get('infer_limit_batch_size', default_batch_size)
         log.info(f'Execute infer_util.get_model_true_infer_speed_per_row_batch() for infer_limit_batch_size={infer_limit_batch_size}')
@@ -62,7 +65,6 @@ def execute_cascade_algorithm(predictor: TabularPredictor, test_data: TabularDat
     from autogluon.tabular.predictor.cascade_do_no_harm import F2SP_Preset, GreedyP_Preset, CascadeConfig
     from autogluon.tabular.predictor.cascade_do_no_harm import get_all_predecessor_model_names
     from autogluon.core.utils.time import sample_df_for_time_func
-
     def get_cascade_config_WE_details(predictor: TabularPredictor, cascad_config: CascadeConfig):
         model_predecessors_dict = {}
         for model in cascad_config.model:
@@ -70,6 +72,7 @@ def execute_cascade_algorithm(predictor: TabularPredictor, test_data: TabularDat
             model_predecessors_dict[model] = list(model_predecessors)
         return model_predecessors_dict
 
+    # Start function
     metrics_mapping = dict(
         acc=metrics.accuracy,
         balacc=metrics.balanced_accuracy,
@@ -83,51 +86,51 @@ def execute_cascade_algorithm(predictor: TabularPredictor, test_data: TabularDat
     )
     metrics_mapping_r = {v.name: k for k, v in metrics_mapping.items()}
     cascade_results = []
-    infer_limit_batch_size = 10000
+    global DEFAULT_BATCH_SIZE
+    infer_limit_batch_size = DEFAULT_BATCH_SIZE
     test_data_sampled = sample_df_for_time_func(df=test_data, sample_size=infer_limit_batch_size, 
                                                 max_sample_size=infer_limit_batch_size)
-    #for infer_limit in [None, 1e-4, 5e-5, 2e-5, 1e-5]:
-    for infer_limit in [None, 1e-4, 5e-5, 2e-5, 1e-5]:
+    for infer_limit in [None, 5e-5, 3e-5, 1e-5, 5e-6, 3e-6]:
         #for cascade_algo_name in ['F2S+', 'Greedy+']:
         for cascade_algo_name in ['F2S+']:
             preset = F2SP_Preset() if cascade_algo_name == 'F2S+' else GreedyP_Preset()
             fit_cascade_params = {
+                'raw_data_for_infer_speed': test_data,
                 'infer_limit': infer_limit,
                 'infer_limit_batch_size': infer_limit_batch_size,
-                'hyperparameter_cascade': {f'{cascade_algo_name}_{infer_limit}': asdict(preset)},
+                'hyperparameter_cascade': asdict(preset),
             }
-            cascd_train_duration_ts = time.time()
-            cascade_configs_dict = predictor.fit_cascade(**fit_cascade_params)
-            cascd_train_duration_te = time.time()
-            for cascd_hyper_name, cascade_config in cascade_configs_dict.items():
-                print(f'{cascd_hyper_name}: get infer_speed and eval_metrics on test data by {cascade_config}')
-                if cascade_config is None:
-                    cascade_results.append(
-                        {
-                        'cascade_hyper_name': cascd_hyper_name,
-                        'training_duration': cascd_train_duration_te - cascd_train_duration_ts,
-                        }
-                    )
-                else:
-                    infer_time, pred_probas = predictor.do_infer_with_cascade_conf(cascade_config, test_data)
-                    test_metrics = predictor.evaluate_predictions(test_data[predictor.label], pred_probas, silent=True)
-                    test_metrics = {metrics_mapping_r[k]: v for k, v in test_metrics.items() if k in metrics_mapping_r}
-                    infer_time_genuine, _ = predictor.do_infer_with_cascade_conf(cascade_config, test_data_sampled)
-                    print(f'[DEBUG] infer_time={infer_time}, test_metrics={test_metrics}')
-                    cascade_m_predecessors_dict = get_cascade_config_WE_details(predictor, cascade_config)
-                    cascade_results.append(
-                        {
-                        'cascade_hyper_name': cascd_hyper_name,
-                        'fit_cascade_params': fit_cascade_params,
-                        'cascade_config': {**asdict(cascade_config), **{'WE_predecessors_info': cascade_m_predecessors_dict}},
-                        'training_duration': cascd_train_duration_te - cascd_train_duration_ts,
-                        'predict_duration': infer_time,
-                        'predict_duration_genuine': infer_time_genuine,
-                        'sec_per_row': infer_time / len(test_data),
-                        'genuine_sec_per_row': infer_time_genuine / infer_limit_batch_size,
-                        **test_metrics,
-                        }
-                    )
+            cascd_hyper_name = f'{cascade_algo_name}_{infer_limit}'    # used in result df to distinguish different trials
+            cascade_config = predictor.fit_cascade(**fit_cascade_params)
+            print(f'[DEBUG] {cascade_config}')
+            if cascade_config is None:
+                cascade_results.append(
+                    {
+                    'cascade_hyper_name': cascd_hyper_name,
+                    }
+                )
+            else:
+                infer_time, pred_probas = predictor.do_infer_with_cascade_conf(cascade_config, test_data)
+                test_metrics = predictor.evaluate_predictions(test_data[predictor.label], pred_probas, silent=True)
+                test_metrics = {metrics_mapping_r[k]: v for k, v in test_metrics.items() if k in metrics_mapping_r}
+                infer_time_genuine, _ = predictor.do_infer_with_cascade_conf(cascade_config, test_data_sampled)
+                print(f'[DEBUG] infer_time={infer_time}, genuine_time={infer_time_genuine}, test_metrics={test_metrics}')
+                cascade_m_predecessors_dict = get_cascade_config_WE_details(predictor, cascade_config)
+                cascade_results.append(
+                    {
+                    'cascade_hyper_name': cascd_hyper_name,
+                    'training_duration': cascade_config.fit_time,
+                    'predict_duration': infer_time,
+                    'predict_duration_genuine': infer_time_genuine,
+                    'sec_per_row': infer_time / len(test_data),
+                    'genuine_sec_per_row': infer_time_genuine / infer_limit_batch_size,
+                    **test_metrics,
+                    'infer_limit': cascade_config.infer_limit,
+                    'infer_limit_batch_size': cascade_config.infer_limit_batch_size,
+                    'cascade_config': asdict(cascade_config),
+                    'weighted_ensemble_info': cascade_m_predecessors_dict,
+                    }
+                )
     return pd.DataFrame.from_records(cascade_results)
 
 
