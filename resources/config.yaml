@@ -138,7 +138,7 @@ aws:                    # configuration namespace for AWS mode.
                                     # Note that for safety reasons, the bucket is then created with a generated name: <s3.bucket>-<now>.
                                     # if false, the real <s3.bucket> name is used (after creation if it doesn't exists), but never deleted.
     #root_key: ec2/                  #
-    root_key: ec2/agv053_20220801-cascade_benchmark-m5_1h8c_gp3/
+    root_key: ec2/agv053_20220831-cascade_benchmark-m5_1h8c_gp3/
     delete_resources: false         #
 
   ec2:

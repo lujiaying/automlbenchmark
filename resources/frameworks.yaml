@@ -45,7 +45,7 @@ AGv053_Aug31_high:
   params:
     presets: high_quality
     _leaderboard_test: true
-    _save_artifacts: ['leaderboard', 'info', 'cascade_results']
+    _save_artifacts: ['leaderboard', 'info', 'models']
 #########################
 
 autosklearn:

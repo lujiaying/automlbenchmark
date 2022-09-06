@@ -210,7 +210,8 @@ def run(dataset, config):
     leaderboard_genuine, predict_genuine_duration = get_predict_genuine_duration(predictor, training_params, leaderboard, test_data)
     leaderboard = leaderboard_genuine
     # Jiaying: add cascade algorithm post training
-    cascade_results = execute_cascade_algorithm(predictor, test_data)
+    # cascade_results = execute_cascade_algorithm(predictor, test_data)
+    cascade_results = None
     # End add
 
     save_artifacts(predictor, leaderboard, config, cascade_results)
@@ -230,7 +231,8 @@ def run(dataset, config):
 
 
 def save_artifacts(predictor, leaderboard, config, cascade_results: pd.DataFrame):
-    artifacts = config.framework_params.get('_save_artifacts', ['leaderboard', 'cascade_results'])
+    # artifacts = config.framework_params.get('_save_artifacts', ['leaderboard', 'cascade_results'])
+    artifacts = config.framework_params.get('_save_artifacts', ['leaderboard'])
     try:
         if 'leaderboard' in artifacts:
             leaderboard_dir = output_subdir("leaderboard", config)
