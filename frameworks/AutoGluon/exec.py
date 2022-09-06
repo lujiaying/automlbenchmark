@@ -102,7 +102,7 @@ def execute_cascade_algorithm(predictor: TabularPredictor, test_data: TabularDat
             }
             cascd_hyper_name = f'{cascade_algo_name}_{infer_limit}'    # used in result df to distinguish different trials
             cascade_config = predictor.fit_cascade(**fit_cascade_params)
-            print(f'automlbench-[DEBUG] {cascade_config}')
+            print(f'[DEBUG] {cascade_config}')
             if cascade_config is None:
                 cascade_results.append(
                     {
@@ -114,7 +114,7 @@ def execute_cascade_algorithm(predictor: TabularPredictor, test_data: TabularDat
                 test_metrics = predictor.evaluate_predictions(test_data[predictor.label], pred_probas, silent=True)
                 test_metrics = {metrics_mapping_r[k]: v for k, v in test_metrics.items() if k in metrics_mapping_r}
                 infer_time_genuine, _ = predictor.do_infer_with_cascade_conf(cascade_config, test_data_sampled)
-                print(f'automlbench-[DEBUG] infer_time={infer_time}, genuine_time={infer_time_genuine}, test_metrics={test_metrics}')
+                print(f'[DEBUG] infer_time={infer_time}, genuine_time={infer_time_genuine}, test_metrics={test_metrics}')
                 cascade_m_predecessors_dict = get_cascade_config_WE_details(predictor, cascade_config)
                 cascade_results.append(
                     {
