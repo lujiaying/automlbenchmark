@@ -14,7 +14,7 @@ from autogluon.tabular.predictor.cascade_do_no_harm import get_all_predecessor_m
 from autogluon.core.utils.time import sample_df_for_time_func
 
 
-def retrieve_train_test_data(res_path: str) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series]:
+def retrieve_train_test_data(res_path: str, ret_train: bool = False) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series]:
     assert os.path.exists(res_path)
     df = pd.read_csv(res_path)
     assert len(df) == 1
@@ -22,13 +22,23 @@ def retrieve_train_test_data(res_path: str) -> Tuple[pd.DataFrame, pd.DataFrame,
     task_id_full = row['id']
     task_id = int(task_id_full.split('/')[-1])
     fold = int(row['fold'])
-    task = openml.tasks.get_task(task_id)
-    print(task)
-    all_data, _, _, _ = task.get_dataset().get_data()
-    train_indices, test_indices = task.get_train_test_split_indices(repeat=0, fold=fold, sample=0)
-    train_data = all_data.loc[train_indices]
-    test_data = all_data.loc[test_indices]
-    print(f'[DEBUG] fold={fold} train_data shape={train_data.shape} test_data shape={test_data.shape}')
+    if task_id == 360975:
+        # too big trigger out of memory in m5.2xlarge
+        train_data = None
+        test_data = pd.read_csv(f'/home/ec2-user/automlbenchmark/data/openml-360975_fold{fold}_test.csv')
+        print(f'test_data load from disk file, shape={test_data.shape}')
+    else:
+        task = openml.tasks.get_task(task_id)
+        print(task)
+        all_data, _, _, _ = task.get_dataset().get_data()
+        train_indices, test_indices = task.get_train_test_split_indices(repeat=0, fold=fold, sample=0)
+        print(f'[DEBUG] fold={fold} train_data shape={train_indices.shape} test_data shape={test_indices.shape}')
+        if ret_train:
+            train_data = all_data.loc[train_indices]
+        else:
+            train_data = None
+        test_data = all_data.loc[test_indices]
+        print('[DEBUG] ret test_data in retrieve_train_test_data()')
     return train_data, test_data, row
 
 
@@ -132,17 +142,20 @@ def main(args: argparse.Namespace):
         if os.path.exists(cascade_result_path):
             continue
         # load data
-        train_data, test_data, almb_result_row = retrieve_train_test_data(os.path.join(subdir, 'output', 'results.csv'))
+        train_data, test_data, amlb_result_row = retrieve_train_test_data(os.path.join(subdir, 'output', 'results.csv'))
+        metric_name = amlb_result_row['metric'] if amlb_result_row['metric'] != 'neg_logloss' else 'logloss'
         # load model and do fit_cascade
         predictor = TabularPredictor.load(ckpt_dir, require_version_match=False)
         cascade_results = exec_fit_cascade(predictor, test_data, args.cascade_algo_list, 
                 args.infer_limit_batch_size, args.infer_limit_list)
-        cascade_results['id'] = [almb_result_row['id'] for _ in range(len(cascade_results))]
-        cascade_results['task'] = [almb_result_row['task'] for _ in range(len(cascade_results))]
-        cascade_results['framework'] = [almb_result_row['framework'] for _ in range(len(cascade_results))]
-        cascade_results['constraint'] = [almb_result_row['constraint'] for _ in range(len(cascade_results))]
-        cascade_results['fold'] = [almb_result_row['fold'] for _ in range(len(cascade_results))]
-        cascade_results['type'] = [almb_result_row['type'] for _ in range(len(cascade_results))]
+        cascade_results['id'] = [amlb_result_row['id'] for _ in range(len(cascade_results))]
+        cascade_results['task'] = [amlb_result_row['task'] for _ in range(len(cascade_results))]
+        cascade_results['framework'] = [amlb_result_row['framework'] for _ in range(len(cascade_results))]
+        cascade_results['constraint'] = [amlb_result_row['constraint'] for _ in range(len(cascade_results))]
+        cascade_results['fold'] = [amlb_result_row['fold'] for _ in range(len(cascade_results))]
+        cascade_results['type'] = [amlb_result_row['type'] for _ in range(len(cascade_results))]
+        cascade_results['metric'] = [amlb_result_row['metric'] for _ in range(len(cascade_results))]
+        cascade_results['score'] = [cascade_results[metric_name][_] for _ in range(len(cascade_results))]
         cascade_results.to_csv(cascade_result_path, index=False)
         print(f'[INFO] cascade results written into {cascade_result_path}')
 
