@@ -26,6 +26,7 @@ def retrieve_train_test_data(res_path: str, ret_train: bool = False) -> Tuple[pd
         # too big trigger out of memory in m5.2xlarge
         train_data = None
         test_data = pd.read_csv(f'/home/ec2-user/automlbenchmark/data/openml-360975_fold{fold}_test.csv')
+        test_data['upselling'] = test_data['upselling'].astype('string')
         print(f'test_data load from disk file, shape={test_data.shape}')
     else:
         task = openml.tasks.get_task(task_id)
